@@ -1,0 +1,5218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FleetOps | Fleet Monitoring</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 250px;
+
+            background: #0b1220;
+            color: white;
+            padding: 22px 16px;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 8px 10px 25px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .brand-icon {
+            width: 45px;
+            height: 45px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 12px;
+
+            background: linear-gradient(
+                135deg,
+                #2563eb,
+                #06b6d4
+            );
+
+            font-size: 23px;
+        }
+
+        .brand h2 {
+            font-size: 20px;
+        }
+
+        .brand small {
+            display: block;
+            color: #64748b;
+            margin-top: 3px;
+        }
+
+        .section-title {
+            margin: 28px 10px 10px;
+
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.3px;
+
+            color: #64748b;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 12px 13px;
+            margin-bottom: 5px;
+
+            border-radius: 9px;
+
+            color: #94a3b8;
+            cursor: pointer;
+
+            transition: all .2s;
+        }
+
+        .nav-item:hover {
+            background: #162033;
+            color: white;
+        }
+
+        .nav-item.active {
+            background: #2563eb;
+            color: white;
+
+            box-shadow:
+                0 8px 20px rgba(37,99,235,.25);
+        }
+
+        .nav-icon {
+            width: 23px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .alert-number {
+            margin-left: auto;
+
+            min-width: 21px;
+            padding: 2px 6px;
+
+            text-align: center;
+            border-radius: 20px;
+
+            background: #ef4444;
+            color: white;
+
+            font-size: 10px;
+        }
+
+        .sidebar-user {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 65px;
+
+            padding: 13px;
+            border-radius: 10px;
+
+            background: #111c30;
+        }
+
+        .sidebar-user strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .sidebar-user span {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .sidebar-logout {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 15px;
+
+            padding: 9px;
+
+            text-align: center;
+            border-radius: 8px;
+
+            background: #1e293b;
+            color: #cbd5e1;
+
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .sidebar-logout:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 250px;
+            min-height: 100vh;
+        }
+
+        .header {
+            height: 82px;
+
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+
+            padding: 0 28px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header p {
+            margin-top: 4px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+
+            color: #475569;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #10b981;
+
+            box-shadow:
+                0 0 0 4px #dcfce7;
+        }
+
+        .updated {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .content {
+            padding: 27px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* =========================
+           STAT CARDS
+        ========================= */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 17px;
+
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+
+            padding: 19px;
+
+            box-shadow:
+                0 4px 15px rgba(15,23,42,.04);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-title {
+            color: #64748b;
+
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+        }
+
+        .stat-icon {
+            width: 35px;
+            height: 35px;
+
+            border-radius: 9px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #eff6ff;
+            font-size: 16px;
+        }
+
+        .stat-value {
+            margin-top: 12px;
+
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-description {
+            margin-top: 5px;
+
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .blue {
+            color: #2563eb;
+        }
+
+        .green {
+            color: #059669;
+        }
+
+        .orange {
+            color: #d97706;
+        }
+
+        .red {
+            color: #dc2626;
+        }
+
+        /* =========================
+           PANELS
+        ========================= */
+
+        .two-column {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 20px;
+
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+
+            padding: 20px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 4px 15px rgba(15,23,42,.04);
+        }
+
+        .panel-header {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 18px;
+        }
+
+        .panel-header h2 {
+            font-size: 16px;
+        }
+
+        .panel-header p {
+            color: #94a3b8;
+
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        /* =========================
+           LINE CHART
+        ========================= */
+
+        .line-chart {
+            position: relative;
+
+            height: 280px;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    rgba(248,250,252,.95),
+                    rgba(255,255,255,1)
+                );
+        }
+
+        .line-grid {
+            position: absolute;
+
+            inset: 20px 10px 40px 42px;
+
+            background:
+                repeating-linear-gradient(
+                    to bottom,
+                    transparent 0,
+                    transparent 48px,
+                    #e2e8f0 49px
+                );
+        }
+
+        .line-svg {
+            position: absolute;
+
+            left: 42px;
+            right: 10px;
+            top: 20px;
+            bottom: 40px;
+
+            width: calc(100% - 52px);
+            height: calc(100% - 60px);
+
+            overflow: visible;
+        }
+
+        .line-path {
+            fill: none;
+
+            stroke-width: 3;
+
+            stroke-linecap: round;
+            stroke-linejoin: round;
+
+            filter:
+                drop-shadow(
+                    0 4px 5px rgba(37,99,235,.12)
+                );
+        }
+
+        .area-path {
+            opacity: .10;
+        }
+
+        .chart-axis-labels {
+            position: absolute;
+
+            left: 0;
+            right: 0;
+            bottom: 9px;
+
+            display: flex;
+
+            justify-content: space-around;
+
+            color: #94a3b8;
+
+            font-size: 11px;
+        }
+
+        .chart-y-labels {
+            position: absolute;
+
+            left: 5px;
+            top: 20px;
+            bottom: 40px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: space-between;
+
+            color: #94a3b8;
+
+            font-size: 8px;
+        }
+
+        .chart-tooltip {
+            position: absolute;
+
+            padding: 7px 10px;
+
+            border-radius: 7px;
+
+            background: #0f172a;
+            color: white;
+
+            font-size: 10px;
+
+            pointer-events: none;
+
+            opacity: 0;
+
+            transition: opacity .2s;
+
+            z-index: 20;
+        }
+
+        .line-point {
+            cursor: pointer;
+        }
+
+        .line-point:hover {
+            r: 5;
+        }
+
+        .chart-legend {
+            display: flex;
+
+            gap: 18px;
+
+            margin-top: 10px;
+
+            font-size: 9px;
+
+            color: #64748b;
+        }
+
+        .legend-item {
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+        }
+
+        .legend-blue {
+            background: #2563eb;
+        }
+
+        .legend-green {
+            background: #059669;
+        }
+
+        .legend-purple {
+            background: #7c3aed;
+        }
+
+        /* =========================
+           MODERN COMBINED CHART
+        ========================= */
+
+        .combined-chart {
+            position: relative;
+            height: 340px;
+            border-radius: 14px;
+            overflow: hidden;
+
+            background:
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(37,99,235,.08),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 85% 15%,
+                    rgba(5,150,105,.07),
+                    transparent 28%
+                ),
+                linear-gradient(
+                    180deg,
+                    #f8fbff 0%,
+                    #ffffff 100%
+                );
+
+            border: 1px solid #e8eef7;
+        }
+
+        .combined-svg {
+            position: absolute;
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            overflow: visible;
+        }
+
+        .combined-grid-line {
+            stroke: #e8edf5;
+            stroke-width: 1;
+            stroke-dasharray: 3 6;
+        }
+
+        .combined-line {
+            fill: none;
+
+            stroke-width: 4;
+
+            stroke-linecap: round;
+            stroke-linejoin: round;
+
+            vector-effect: non-scaling-stroke;
+
+            filter:
+                drop-shadow(
+                    0 4px 5px rgba(15,23,42,.10)
+                );
+        }
+
+        .combined-area {
+            opacity: .8;
+        }
+
+        .combined-point {
+            cursor: pointer;
+
+            transition:
+                r .15s ease,
+                stroke-width .15s ease;
+        }
+
+        .combined-point:hover {
+            r: 6;
+            stroke-width: 3;
+        }
+
+        .combined-label {
+            fill: #475569;
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        .combined-axis-title {
+            fill: #94a3b8;
+
+            font-size: 9px;
+
+            font-weight: 700;
+        }
+
+        .combined-tooltip {
+            position: absolute;
+
+            min-width: 190px;
+
+            padding: 11px 13px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(15,23,42,.96);
+
+            color: white;
+
+            font-size: 11px;
+
+            line-height: 1.65;
+
+            box-shadow:
+                0 12px 30px
+                rgba(15,23,42,.22);
+
+            pointer-events: none;
+
+            opacity: 0;
+
+            transform:
+                translate(-50%,-110%);
+
+            transition:
+                opacity .15s ease;
+
+            z-index: 50;
+
+            backdrop-filter: blur(6px);
+        }
+
+        .combined-tooltip .tt-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .combined-tooltip .speed {
+            color: #60a5fa;
+        }
+
+        .combined-tooltip .fuel {
+            color: #34d399;
+        }
+
+        .combined-tooltip .temp {
+            color: #fb923c;
+        }
+
+        .combined-legend {
+            position: absolute;
+
+            left: 18px;
+            right: 18px;
+            bottom: 9px;
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 18px;
+        }
+
+        .combined-legend .legend-item {
+            font-size: 10px;
+
+            font-weight: 600;
+
+            color: #475569;
+        }
+
+        .chart-mode-badge {
+            margin-left: auto;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            background: #f1f5f9;
+
+            color: #64748b;
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            border: 1px solid #e2e8f0;
+        }
+
+        /* =========================
+           DONUT
+        ========================= */
+
+        .health-panel {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 35px;
+
+            min-height: 280px;
+        }
+
+        .donut {
+            width: 190px;
+            height: 190px;
+
+            border-radius: 50%;
+
+            background:
+                conic-gradient(
+                    #10b981 0 65%,
+                    #f59e0b 65% 82%,
+                    #ef4444 82% 90%,
+                    #cbd5e1 90% 100%
+                );
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            box-shadow:
+                0 8px 25px rgba(15,23,42,.10);
+        }
+
+        .donut-inner {
+            width: 125px;
+            height: 125px;
+
+            border-radius: 50%;
+
+            background: white;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+            justify-content: center;
+        }
+
+        .donut-inner strong {
+            font-size: 26px;
+        }
+
+        .donut-inner span {
+            color: #94a3b8;
+            font-size: 10px;
+        }
+
+        .health-list {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 13px;
+        }
+
+        .health-item {
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            font-size: 11px;
+        }
+
+        .health-item .dot {
+            width: 9px;
+            height: 9px;
+
+            border-radius: 50%;
+        }
+
+        .health-item strong {
+            margin-left: auto;
+            padding-left: 20px;
+        }
+
+        /* =========================
+           BAR CHART
+        ========================= */
+
+        .horizontal-bars {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 14px;
+        }
+
+        .bar-row {
+            display: grid;
+
+            grid-template-columns: 85px 1fr 35px;
+
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .bar-name {
+            font-size: 10px;
+
+            color: #475569;
+
+            font-weight: 600;
+        }
+
+        .bar-track {
+            height: 10px;
+
+            background: #f1f5f9;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #2563eb,
+                    #60a5fa
+                );
+
+            transition: width .6s ease;
+        }
+
+        .bar-value {
+            font-size: 10px;
+
+            font-weight: 700;
+
+            color: #334155;
+        }
+
+        /* =========================
+           REGION STACKED BAR
+        ========================= */
+
+        .region-list {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 18px;
+        }
+
+        .region-row {
+            display: grid;
+
+            grid-template-columns: 80px 1fr;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+        .region-name {
+            font-size: 10px;
+
+            font-weight: 600;
+
+            color: #475569;
+        }
+
+        .stacked {
+            display: flex;
+
+            height: 14px;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+
+            background: #f1f5f9;
+        }
+
+        .stack-healthy {
+            background: #10b981;
+        }
+
+        .stack-warning {
+            background: #f59e0b;
+        }
+
+        .stack-critical {
+            background: #ef4444;
+        }
+
+        .region-legend {
+            display: flex;
+
+            gap: 15px;
+
+            margin-top: 15px;
+
+            font-size: 9px;
+
+            color: #64748b;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 12px;
+
+            text-align: left;
+
+            color: #64748b;
+            background: #f8fafc;
+
+            font-size: 10px;
+
+            text-transform: uppercase;
+
+            letter-spacing: .5px;
+        }
+
+        td {
+            padding: 13px 12px;
+
+            border-top: 1px solid #e2e8f0;
+
+            font-size: 12px;
+        }
+
+        .vehicle-id {
+            color: #2563eb;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* =========================
+           BADGES
+        ========================= */
+
+        .badge {
+            display: inline-block;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+        .badge-active {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-critical {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* =========================
+           TOOLBAR
+        ========================= */
+
+        .toolbar {
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-bottom: 17px;
+
+            gap: 10px;
+        }
+
+        .search {
+            width: 280px;
+
+            padding: 10px 12px;
+
+            border: 1px solid #cbd5e1;
+
+            border-radius: 8px;
+
+            outline: none;
+
+            font-size: 13px;
+        }
+
+        .search:focus {
+            border-color: #2563eb;
+        }
+
+        select {
+            padding: 10px 12px;
+
+            border: 1px solid #cbd5e1;
+
+            border-radius: 8px;
+
+            background: white;
+
+            outline: none;
+
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: #2563eb;
+        }
+
+        /* =========================
+           ALERTS
+        ========================= */
+
+        .alert-row {
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            padding: 14px 0;
+
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .alert-row:last-child {
+            border-bottom: none;
+        }
+
+        .alert-icon {
+            width: 38px;
+            height: 38px;
+
+            border-radius: 9px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            background: #fee2e2;
+
+            color: #dc2626;
+
+            font-weight: 700;
+        }
+
+        .alert-info strong {
+            display: block;
+
+            font-size: 13px;
+        }
+
+        .alert-info span {
+            display: block;
+
+            margin-top: 3px;
+
+            color: #94a3b8;
+
+            font-size: 11px;
+        }
+
+        .empty {
+            text-align: center;
+
+            padding: 40px;
+
+            color: #94a3b8;
+
+            font-size: 13px;
+        }
+
+        /* =========================
+           SETTINGS
+        ========================= */
+
+        .setting-row {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            padding: 17px 0;
+
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-row strong {
+            font-size: 13px;
+        }
+
+        .setting-row p {
+            margin-top: 4px;
+
+            color: #94a3b8;
+
+            font-size: 11px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media(max-width:1100px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(2,1fr);
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media(max-width:700px) {
+
+            .sidebar {
+                width: 65px;
+                padding: 15px 8px;
+            }
+
+            .brand-text,
+            .section-title,
+            .nav-item span,
+            .sidebar-user,
+            .sidebar-logout {
+                display: none;
+            }
+
+            .brand {
+                justify-content: center;
+                border: none;
+            }
+
+            .nav-item {
+                justify-content: center;
+            }
+
+            .main {
+                margin-left: 65px;
+            }
+
+            .header {
+                padding: 0 15px;
+            }
+
+            .header-right {
+                display: none;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .health-panel {
+                flex-direction: column;
+            }
+
+            .combined-chart {
+                height: 310px;
+            }
+
+            .combined-label {
+                font-size: 9px;
+            }
+
+            .combined-legend {
+                gap: 10px;
+            }
+
+            .chart-mode-badge {
+                display: none;
+            }
+
+        }
+
+
+        /* =====================================================
+           DASHBOARD POLISH - PRESENTABLE FLEET OVERVIEW
+        ===================================================== */
+        .dashboard-resource-grid {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:18px;
+            min-height:230px;
+            align-items:stretch;
+        }
+        .resource-card {
+            border:1px solid #e2e8f0;
+            border-radius:14px;
+            padding:18px;
+            background:linear-gradient(180deg,#ffffff,#f8fafc);
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+        }
+        .resource-card-top { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+        .resource-label { font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:.6px; }
+        .resource-value { font-size:30px; font-weight:800; color:#0f172a; }
+        .resource-sub { margin-top:4px; font-size:11px; color:#94a3b8; }
+        .resource-track { height:12px; border-radius:99px; background:#e2e8f0; overflow:hidden; margin:18px 0 10px; }
+        .resource-fill { height:100%; border-radius:99px; transition:width .3s ease; }
+        .resource-meta { display:flex; justify-content:space-between; gap:10px; font-size:11px; color:#64748b; }
+        .resource-alert { margin-top:12px; padding:9px 10px; border-radius:9px; background:#fff7ed; color:#c2410c; font-size:11px; font-weight:700; }
+        .anomaly-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+        .anomaly-kpi { padding:12px; border:1px solid #e2e8f0; border-radius:11px; background:#f8fafc; }
+        .anomaly-kpi .kpi-label { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:#64748b; font-weight:700; }
+        .anomaly-kpi .kpi-value { font-size:24px; font-weight:800; margin-top:5px; }
+        .anomaly-kpi.critical .kpi-value { color:#dc2626; }
+        .anomaly-kpi.warning .kpi-value { color:#d97706; }
+        .anomaly-kpi.normal .kpi-value { color:#059669; }
+        .anomaly-list-title { font-size:11px; font-weight:700; color:#475569; margin-bottom:9px; }
+        .anomaly-row { display:grid; grid-template-columns:125px 1fr 34px; align-items:center; gap:10px; margin:9px 0; }
+        .anomaly-name { font-size:12px; font-weight:700; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .anomaly-track { height:9px; border-radius:99px; background:#e2e8f0; overflow:hidden; }
+        .anomaly-fill { height:100%; border-radius:99px; background:#f97316; }
+        .anomaly-count { text-align:right; font-size:12px; font-weight:800; color:#475569; }
+        .dashboard-note { font-size:10px; color:#94a3b8; margin-top:8px; }
+        #performanceChart { min-height:310px; }
+        #performanceChart .combined-chart { min-height:310px; }
+        .combined-chart text, .line-chart text { font-size:11px !important; font-weight:600; }
+        .combined-chart .axis-label, .line-chart .axis-label { font-size:11px !important; font-weight:700; }
+        @media (max-width: 1100px) {
+            .dashboard-resource-grid { grid-template-columns:1fr; }
+            .anomaly-row { grid-template-columns:105px 1fr 30px; }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            🚚
+        </div>
+
+        <div class="brand-text">
+
+            <h2>FleetOps</h2>
+
+            <small>
+                Fleet Intelligence
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <div class="section-title">
+        MONITORING
+    </div>
+
+
+    <div
+        class="nav-item active"
+        onclick="showPage('dashboard', this)"
+    >
+
+        <div class="nav-icon">
+            ▦
+        </div>
+
+        <span>
+            Dashboard
+        </span>
+
+    </div>
+
+
+    <div
+        class="nav-item"
+        onclick="showPage('vehicles', this)"
+    >
+
+        <div class="nav-icon">
+            🚛
+        </div>
+
+        <span>
+            Vehicles
+        </span>
+
+    </div>
+
+
+    <div
+        class="nav-item"
+        onclick="showPage('telemetry', this)"
+    >
+
+        <div class="nav-icon">
+            〽
+        </div>
+
+        <span>
+            Live Telemetry
+        </span>
+
+    </div>
+
+
+    <div
+        class="nav-item"
+        onclick="showPage('alerts', this)"
+    >
+
+        <div class="nav-icon">
+            ⚠
+        </div>
+
+        <span>
+            Alerts
+        </span>
+
+        <div
+            class="alert-number"
+            id="alertNumber"
+        >
+            0
+        </div>
+
+    </div>
+
+
+    <div
+        class="nav-item"
+        onclick="showPage('analytics', this)"
+    >
+
+        <div class="nav-icon">
+            ▥
+        </div>
+
+        <span>
+            Analytics
+        </span>
+
+    </div>
+
+
+    <div class="section-title">
+        SYSTEM
+    </div>
+
+
+    <div
+        class="nav-item"
+        onclick="showPage('settings', this)"
+    >
+
+        <div class="nav-icon">
+            ⚙
+        </div>
+
+        <span>
+            Settings
+        </span>
+
+    </div>
+
+
+    <div class="sidebar-user">
+
+        <strong>
+            {{ session.get("username", "Admin") }}
+        </strong>
+
+        <span>
+            Fleet Administrator
+        </span>
+
+    </div>
+
+
+    <a
+        href="/logout"
+        class="sidebar-logout"
+    >
+        🚪 Logout
+    </a>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+
+<header class="header">
+
+    <div>
+
+        <h1 id="pageTitle">
+            Fleet Dashboard
+        </h1>
+
+        <p id="pageSubtitle">
+            Real-time fleet monitoring and telemetry analytics
+        </p>
+
+    </div>
+
+
+    <div class="header-right">
+
+        <div class="system-status">
+
+            <div class="status-dot"></div>
+
+            System Online
+
+        </div>
+
+        <div
+            class="updated"
+            id="lastUpdated"
+        >
+            Waiting for data...
+        </div>
+
+    </div>
+
+</header>
+
+
+<div class="content">
+
+
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
+
+<section
+    id="dashboard"
+    class="page active"
+>
+
+
+<!-- =========================
+     STATS
+========================= -->
+
+<div class="stats-grid">
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+
+            <div class="stat-title">
+                Total Vehicles
+            </div>
+
+            <div class="stat-icon">
+                🚛
+            </div>
+
+        </div>
+
+        <div
+            id="totalVehicles"
+            class="stat-value blue"
+        >
+            --
+        </div>
+
+        <div class="stat-description">
+            Connected fleet
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+
+            <div class="stat-title">
+                Active Vehicles
+            </div>
+
+            <div class="stat-icon">
+                ✓
+            </div>
+
+        </div>
+
+        <div
+            id="activeVehicles"
+            class="stat-value green"
+        >
+            --
+        </div>
+
+        <div class="stat-description">
+            Currently operational
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+
+            <div class="stat-title">
+                Fleet Alerts
+            </div>
+
+            <div class="stat-icon">
+                ⚠
+            </div>
+
+        </div>
+
+        <div
+            id="activeAlerts"
+            class="stat-value red"
+        >
+            --
+        </div>
+
+        <div class="stat-description">
+            Requiring attention
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+
+            <div class="stat-title">
+                Fleet Health
+            </div>
+
+            <div class="stat-icon">
+                ♥
+            </div>
+
+        </div>
+
+        <div
+            id="fleetHealth"
+            class="stat-value green"
+        >
+            --
+        </div>
+
+        <div class="stat-description">
+            Overall fleet condition
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PERFORMANCE + HEALTH
+===================================================== -->
+
+<div class="two-column">
+
+
+    <!-- FLEET PERFORMANCE -->
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h2>
+                    Fleet Performance
+                </h2>
+
+                <p>
+                    Speed, fuel & temperature across the fleet
+                </p>
+
+            </div>
+
+            <select
+                onchange="refreshDashboardChart(this.value)"
+            >
+
+                <option value="combined">
+                    Combined
+                </option>
+
+                <option value="speed">
+                    Speed
+                </option>
+
+                <option value="fuel">
+                    Fuel
+                </option>
+
+                <option value="temperature">
+                    Temperature
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div
+            id="performanceChart"
+            class="line-chart"
+        ></div>
+
+
+        <div class="chart-legend">
+
+            <div class="legend-item">
+
+                <div
+                    class="legend-dot"
+                    style="background:#2563eb"
+                ></div>
+
+                Speed
+
+            </div>
+
+            <div class="legend-item">
+
+                <div
+                    class="legend-dot"
+                    style="background:#059669"
+                ></div>
+
+                Fuel
+
+            </div>
+
+            <div class="legend-item">
+
+                <div
+                    class="legend-dot"
+                    style="background:#f97316"
+                ></div>
+
+                Temperature
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- FLEET HEALTH -->
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h2>
+                    Fleet Health
+                </h2>
+
+                <p>
+                    Vehicle health distribution
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="health-panel">
+
+            <div class="donut">
+
+                <div class="donut-inner">
+
+                    <strong id="healthPercent">
+                        91%
+                    </strong>
+
+                    <span>
+                        Fleet Health
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="health-list">
+
+                <div class="health-item">
+
+                    <div
+                        class="dot"
+                        style="background:#10b981"
+                    ></div>
+
+                    Healthy
+
+                    <strong id="healthyCount">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="health-item">
+
+                    <div
+                        class="dot"
+                        style="background:#f59e0b"
+                    ></div>
+
+                    Warning
+
+                    <strong id="warningCount">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="health-item">
+
+                    <div
+                        class="dot"
+                        style="background:#ef4444"
+                    ></div>
+
+                    Critical
+
+                    <strong id="criticalCount">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="health-item">
+
+                    <div
+                        class="dot"
+                        style="background:#cbd5e1"
+                    ></div>
+
+                    Offline
+
+                    <strong>
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =====================================================
+     ANOMALY + BATTERY/FUEL
+===================================================== -->
+
+<div class="two-column">
+
+    <div class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Anomaly Overview</h2>
+                <p>Fleet issues requiring attention</p>
+            </div>
+            <span class="chart-mode-badge">Live Fleet</span>
+        </div>
+
+        <div class="anomaly-summary">
+            <div class="anomaly-kpi critical">
+                <div class="kpi-label">Critical</div>
+                <div class="kpi-value" id="criticalAnomalyCount">0</div>
+            </div>
+            <div class="anomaly-kpi warning">
+                <div class="kpi-label">Warning</div>
+                <div class="kpi-value" id="warningAnomalyCount">0</div>
+            </div>
+            <div class="anomaly-kpi normal">
+                <div class="kpi-label">Healthy</div>
+                <div class="kpi-value" id="healthyAnomalyCount">0</div>
+            </div>
+        </div>
+
+        <div class="anomaly-list-title">Vehicles with highest risk</div>
+        <div id="anomalyChart"></div>
+        <div class="dashboard-note">Risk score is based on current vehicle temperature and fuel level.</div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Battery &amp; Fuel</h2>
+                <p>Current fleet resource levels</p>
+            </div>
+            <span class="chart-mode-badge">Live Fleet</span>
+        </div>
+
+        <div id="resourceChart" class="dashboard-resource-grid"></div>
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     TOP ANOMALOUS + REGIONS
+===================================================== -->
+
+<div class="two-column">
+
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h2>
+                    Top Anomalous Vehicles
+                </h2>
+
+                <p>
+                    Vehicles requiring attention
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="anomalyBars"
+            class="horizontal-bars"
+        ></div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h2>
+                    Region-wise Fleet
+                </h2>
+
+                <p>
+                    Fleet health by operating region
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="regionChart"
+            class="region-list"
+        ></div>
+
+
+        <div class="region-legend">
+
+            <span>
+                🟢 Healthy
+            </span>
+
+            <span>
+                🟡 Warning
+            </span>
+
+            <span>
+                🔴 Critical
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     FLEET OVERVIEW TABLE
+===================================================== -->
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Fleet Overview
+            </h2>
+
+            <p>
+                Latest vehicle telemetry
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Vehicle</th>
+                    <th>Speed</th>
+                    <th>Fuel</th>
+                    <th>Temperature</th>
+                    <th>Status</th>
+                    <th>Location</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="dashboardTable"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+</section>
+
+
+<!-- =====================================================
+     VEHICLES
+===================================================== -->
+
+<section
+    id="vehicles"
+    class="page"
+>
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Vehicle Management
+            </h2>
+
+            <p>
+                Monitor all connected fleet vehicles
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="toolbar">
+
+        <input
+            id="vehicleSearch"
+            class="search"
+            type="text"
+            placeholder="Search vehicle..."
+            oninput="filterVehicles()"
+        >
+
+
+        <select
+            id="vehicleStatus"
+            onchange="filterVehicles()"
+        >
+
+            <option value="all">
+                All Vehicles
+            </option>
+
+            <option value="active">
+                Active
+            </option>
+
+            <option value="warning">
+                Warning
+            </option>
+
+            <option value="critical">
+                Critical
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Vehicle ID</th>
+                    <th>Speed</th>
+                    <th>Fuel</th>
+                    <th>Temperature</th>
+                    <th>Status</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="vehiclesTable"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     TELEMETRY
+===================================================== -->
+
+<section
+    id="telemetry"
+    class="page"
+>
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Live Telemetry
+            </h2>
+
+            <p>
+                Real-time telemetry received from fleet
+            </p>
+
+        </div>
+
+        <div class="updated">
+            Auto refresh: 10 seconds
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Vehicle</th>
+                    <th>Speed</th>
+                    <th>Fuel</th>
+                    <th>Temperature</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Timestamp</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="telemetryTable"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     ALERTS
+===================================================== -->
+
+<section
+    id="alerts"
+    class="page"
+>
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Fleet Alerts
+            </h2>
+
+            <p>
+                Health and anomaly notifications
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div id="alertsList"></div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     ANALYTICS
+===================================================== -->
+
+<section
+    id="analytics"
+    class="page"
+>
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <div class="stat-title">
+            Fleet Utilization
+        </div>
+
+        <div class="stat-value green">
+            94%
+        </div>
+
+        <div class="stat-description">
+            Current utilization
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-title">
+            Average Speed
+        </div>
+
+        <div
+            id="analyticsSpeed"
+            class="stat-value blue"
+        >
+            --
+        </div>
+
+        <div class="stat-description">
+            km/h
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-title">
+            Average Fuel
+        </div>
+
+        <div
+            id="analyticsFuel"
+            class="stat-value"
+        >
+            --
+        </div>
+
+        <div class="stat-description">
+            Fleet fuel level
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-title">
+            System Status
+        </div>
+
+        <div class="stat-value green">
+            ONLINE
+        </div>
+
+        <div class="stat-description">
+            Fleet monitoring active
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Fleet Performance Analytics
+            </h2>
+
+            <p>
+                Vehicle performance trend
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="analyticsChart"
+        class="line-chart"
+    ></div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     SETTINGS
+===================================================== -->
+
+<section
+    id="settings"
+    class="page"
+>
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                System Settings
+            </h2>
+
+            <p>
+                FleetOps application information
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="setting-row">
+
+        <div>
+
+            <strong>
+                Monitoring Status
+            </strong>
+
+            <p>
+                Fleet telemetry monitoring
+            </p>
+
+        </div>
+
+        <strong class="green">
+            ENABLED
+        </strong>
+
+    </div>
+
+
+    <div class="setting-row">
+
+        <div>
+
+            <strong>
+                Telemetry Refresh
+            </strong>
+
+            <p>
+                Dashboard data refresh interval
+            </p>
+
+        </div>
+
+        <strong>
+            10 seconds
+        </strong>
+
+    </div>
+
+
+    <div class="setting-row">
+
+        <div>
+
+            <strong>
+                Platform
+            </strong>
+
+            <p>
+                Container orchestration platform
+            </p>
+
+        </div>
+
+        <strong class="blue">
+            Kubernetes / AKS
+        </strong>
+
+    </div>
+
+
+    <div class="setting-row">
+
+        <div>
+
+            <strong>
+                Logged-in User
+            </strong>
+
+            <p>
+                Current FleetOps session
+            </p>
+
+        </div>
+
+        <strong>
+            {{ session.get("username", "Admin") }}
+        </strong>
+
+    </div>
+
+
+    <div class="setting-row">
+
+        <div>
+
+            <strong>
+                Application
+            </strong>
+
+            <p>
+                Fleet Intelligence Monitoring Platform
+            </p>
+
+        </div>
+
+        <strong>
+            FleetOps
+        </strong>
+
+    </div>
+
+</div>
+
+</section>
+
+
+</div>
+
+</main>
+
+
+<script>
+
+let allVehicles = [];
+
+
+/* =====================================================
+   PAGE NAVIGATION
+===================================================== */
+
+function showPage(pageName, element) {
+
+    document
+        .querySelectorAll(".page")
+        .forEach(page => {
+            page.classList.remove("active");
+        });
+
+
+    const selectedPage =
+        document.getElementById(pageName);
+
+
+    if (selectedPage) {
+        selectedPage.classList.add("active");
+    }
+
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(item => {
+            item.classList.remove("active");
+        });
+
+
+    if (element) {
+        element.classList.add("active");
+    }
+
+
+    const titles = {
+
+        dashboard: [
+            "Fleet Dashboard",
+            "Real-time fleet monitoring and telemetry analytics"
+        ],
+
+        vehicles: [
+            "Vehicles",
+            "Monitor all connected fleet vehicles"
+        ],
+
+        telemetry: [
+            "Live Telemetry",
+            "Real-time vehicle telemetry data"
+        ],
+
+        alerts: [
+            "Fleet Alerts",
+            "Health and anomaly notifications"
+        ],
+
+        analytics: [
+            "Fleet Analytics",
+            "Fleet performance and telemetry analytics"
+        ],
+
+        settings: [
+            "Settings",
+            "FleetOps application configuration"
+        ]
+
+    };
+
+
+    if (titles[pageName]) {
+
+        document.getElementById("pageTitle")
+            .innerText = titles[pageName][0];
+
+        document.getElementById("pageSubtitle")
+            .innerText = titles[pageName][1];
+
+    }
+
+}
+
+
+/* =====================================================
+   API
+===================================================== */
+
+async function getAPI(url) {
+
+    try {
+
+        const response =
+            await fetch(url, {
+
+                method: "GET",
+
+                credentials: "same-origin",
+
+                cache: "no-store",
+
+                headers: {
+                    "Accept": "application/json"
+                }
+
+            });
+
+
+        if (response.status === 401) {
+
+            window.location.href = "/login";
+
+            return null;
+
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "API returned HTTP " +
+                response.status
+            );
+
+        }
+
+
+        return await response.json();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "API Error:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+/* =====================================================
+   DATA HELPERS
+===================================================== */
+
+function getVehicleId(vehicle) {
+
+    return (
+        vehicle.vehicle_id ??
+        vehicle.device_id ??
+        vehicle.id ??
+        "Unknown"
+    );
+
+}
+
+
+function getSpeed(vehicle) {
+
+    return Number(
+        vehicle.speed ??
+        vehicle.speed_kmh ??
+        vehicle.velocity ??
+        0
+    );
+
+}
+
+
+function getFuel(vehicle) {
+
+    return Number(
+        vehicle.fuel_level ??
+        vehicle.fuel_level_pct ??
+        vehicle.fuel ??
+        vehicle.fuel_percentage ??
+        0
+    );
+
+}
+
+
+function getBattery(vehicle) {
+    return Number(
+        vehicle.battery_level ??
+        vehicle.battery_level_pct ??
+        vehicle.battery_percentage ??
+        vehicle.battery ??
+        vehicle.batteryPercent ??
+        0
+    ) || 0;
+}
+
+function getTemperature(vehicle) {
+
+    return Number(
+        vehicle.engine_temp ??
+        vehicle.engine_temp_c ??
+        vehicle.engine_temperature ??
+        vehicle.temperature ??
+        0
+    );
+
+}
+
+
+function getLatitude(vehicle) {
+
+    return (
+        vehicle.latitude ??
+        vehicle.lat ??
+        "--"
+    );
+
+}
+
+
+function getLongitude(vehicle) {
+
+    return (
+        vehicle.longitude ??
+        vehicle.lng ??
+        vehicle.lon ??
+        "--"
+    );
+
+}
+
+
+function getTimestamp(vehicle) {
+
+    return (
+        vehicle.timestamp ??
+        vehicle.created_at ??
+        "--"
+    );
+
+}
+
+
+function getStatus(vehicle) {
+
+    const temperature =
+        getTemperature(vehicle);
+
+    const fuel =
+        getFuel(vehicle);
+
+
+    if (temperature >= 100) {
+        return "critical";
+    }
+
+
+    if (
+        temperature >= 90 ||
+        fuel <= 20
+    ) {
+        return "warning";
+    }
+
+
+    return "active";
+
+}
+
+
+function statusBadge(status) {
+
+    const names = {
+
+        active: "Active",
+        warning: "Warning",
+        critical: "Critical"
+
+    };
+
+
+    return `
+        <span class="badge badge-${status}">
+            ${names[status] || status}
+        </span>
+    `;
+
+}
+
+
+function formatNumber(value) {
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "--";
+    }
+
+    return number.toFixed(1);
+
+}
+
+
+/* =====================================================
+   LOAD VEHICLES
+===================================================== */
+
+async function loadVehicles() {
+
+    const data =
+        await getAPI("/api/devices");
+
+
+    if (!data) {
+        return;
+    }
+
+
+    let devices = [];
+
+
+    if (Array.isArray(data)) {
+
+        devices = data;
+
+    }
+
+    else if (
+        Array.isArray(data.devices)
+    ) {
+
+        devices = data.devices;
+
+    }
+
+    else if (
+        Array.isArray(data.data)
+    ) {
+
+        devices = data.data;
+
+    }
+
+
+    /*
+     * DEMO FLEET SIZE
+     *
+     * Dashboard intentionally
+     * limited to 20 vehicles.
+     */
+
+    allVehicles =
+        devices.slice(0, 20);
+
+
+    updateStatistics(allVehicles);
+
+    renderDashboardTable(allVehicles);
+
+    renderVehiclesTable(allVehicles);
+
+    renderTelemetryTable(allVehicles);
+
+    renderDashboardCharts(allVehicles);
+
+    renderAlerts(allVehicles);
+
+
+    document.getElementById(
+        "lastUpdated"
+    ).innerText =
+        "Updated " +
+        new Date().toLocaleTimeString();
+
+}
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+function updateStatistics(devices) {
+
+    const total =
+        devices.length;
+
+
+    let speedTotal = 0;
+    let fuelTotal = 0;
+
+    let alerts = 0;
+
+    let healthy = 0;
+    let warning = 0;
+    let critical = 0;
+
+
+    devices.forEach(vehicle => {
+
+        speedTotal +=
+            getSpeed(vehicle);
+
+        fuelTotal +=
+            getFuel(vehicle);
+
+
+        const status =
+            getStatus(vehicle);
+
+
+        if (status === "active") {
+            healthy++;
+        }
+
+        else if (status === "warning") {
+            warning++;
+        }
+
+        else {
+            critical++;
+        }
+
+
+        if (status !== "active") {
+            alerts++;
+        }
+
+    });
+
+
+    const avgSpeed =
+        total > 0
+            ? speedTotal / total
+            : 0;
+
+
+    const avgFuel =
+        total > 0
+            ? fuelTotal / total
+            : 0;
+
+
+    const health =
+        total > 0
+            ? Math.round(
+                (healthy / total) * 100
+            )
+            : 0;
+
+
+    document.getElementById(
+        "totalVehicles"
+    ).innerText =
+        total;
+
+
+    document.getElementById(
+        "activeVehicles"
+    ).innerText =
+        healthy;
+
+
+    document.getElementById(
+        "activeAlerts"
+    ).innerText =
+        alerts;
+
+
+    document.getElementById(
+        "alertNumber"
+    ).innerText =
+        alerts;
+
+
+    document.getElementById(
+        "fleetHealth"
+    ).innerText =
+        health + "%";
+
+
+    document.getElementById(
+        "healthPercent"
+    ).innerText =
+        health + "%";
+
+
+    document.getElementById(
+        "healthyCount"
+    ).innerText =
+        healthy;
+
+
+    document.getElementById(
+        "warningCount"
+    ).innerText =
+        warning;
+
+
+    document.getElementById(
+        "criticalCount"
+    ).innerText =
+        critical;
+
+
+    document.getElementById(
+        "analyticsSpeed"
+    ).innerText =
+        formatNumber(avgSpeed) +
+        " km/h";
+
+
+    document.getElementById(
+        "analyticsFuel"
+    ).innerText =
+        formatNumber(avgFuel) +
+        "%";
+
+
+    updateDonut(
+        healthy,
+        warning,
+        critical,
+        total
+    );
+
+}
+
+
+/* =====================================================
+   DONUT
+===================================================== */
+
+function updateDonut(
+    healthy,
+    warning,
+    critical,
+    total
+) {
+
+    if (!total) {
+        return;
+    }
+
+
+    const healthyPct =
+        (healthy / total) * 100;
+
+    const warningPct =
+        healthyPct +
+        (warning / total) * 100;
+
+    const criticalPct =
+        warningPct +
+        (critical / total) * 100;
+
+
+    document.querySelector(
+        ".donut"
+    ).style.background = `
+        conic-gradient(
+            #10b981 0 ${healthyPct}%,
+            #f59e0b ${healthyPct}% ${warningPct}%,
+            #ef4444 ${warningPct}% ${criticalPct}%,
+            #cbd5e1 ${criticalPct}% 100%
+        )
+    `;
+
+}
+
+
+/* =====================================================
+   MODERN COMBINED CHART
+===================================================== */
+
+function createCombinedChart(
+    container,
+    devices
+) {
+
+    container.innerHTML = "";
+
+    container.classList.add(
+        "combined-chart"
+    );
+
+
+    if (!devices.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+                No telemetry data available
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const width = 1400;
+    const height = 340;
+
+    const left = 55;
+    const right = 25;
+    const top = 25;
+    const bottom = 75;
+
+    const plotWidth =
+        width - left - right;
+
+    const plotHeight =
+        height - top - bottom;
+
+
+    const speedValues =
+        devices.map(
+            vehicle =>
+                getSpeed(vehicle)
+        );
+
+
+    const fuelValues =
+        devices.map(
+            vehicle =>
+                getFuel(vehicle)
+        );
+
+
+    const tempValues =
+        devices.map(
+            vehicle =>
+                getTemperature(vehicle)
+        );
+
+
+    function getRange(
+        values,
+        baseMin,
+        baseMax
+    ) {
+
+        const dataMin =
+            Math.min(...values);
+
+        const dataMax =
+            Math.max(...values);
+
+
+        return {
+
+            min:
+                Math.min(
+                    baseMin,
+                    dataMin
+                ),
+
+            max:
+                Math.max(
+                    baseMax,
+                    dataMax
+                )
+
+        };
+
+    }
+
+
+    const speedRange =
+        getRange(
+            speedValues,
+            0,
+            120
+        );
+
+
+    const fuelRange =
+        getRange(
+            fuelValues,
+            0,
+            100
+        );
+
+
+    const tempRange =
+        getRange(
+            tempValues,
+            50,
+            120
+        );
+
+
+    function mapX(index) {
+
+        if (devices.length === 1) {
+
+            return (
+                left +
+                plotWidth / 2
+            );
+
+        }
+
+
+        return (
+            left +
+            (
+                index /
+                (devices.length - 1)
+            ) *
+            plotWidth
+        );
+
+    }
+
+
+    function mapY(
+        value,
+        range
+    ) {
+
+        const normalized =
+            (
+                value -
+                range.min
+            ) /
+            (
+                range.max -
+                range.min
+            );
+
+
+        return (
+            top +
+            plotHeight -
+            normalized *
+            plotHeight
+        );
+
+    }
+
+
+    function createPath(
+        values,
+        range
+    ) {
+
+        return values
+            .map(
+                (value, index) => {
+
+                    const x =
+                        mapX(index);
+
+                    const y =
+                        mapY(
+                            value,
+                            range
+                        );
+
+
+                    return `
+                        ${index === 0 ? "M" : "L"}
+                        ${x}
+                        ${y}
+                    `;
+
+                }
+            )
+            .join(" ");
+
+    }
+
+
+    function createAreaPath(
+        values,
+        range
+    ) {
+
+        const line =
+            createPath(
+                values,
+                range
+            );
+
+
+        return `
+            ${line}
+            L
+            ${mapX(values.length - 1)}
+            ${top + plotHeight}
+
+            L
+            ${mapX(0)}
+            ${top + plotHeight}
+
+            Z
+        `;
+
+    }
+
+
+    const svg =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg"
+        );
+
+
+    svg.setAttribute(
+        "viewBox",
+        `0 0 ${width} ${height}`
+    );
+
+
+    svg.classList.add(
+        "combined-svg"
+    );
+
+
+    /* =========================
+       GRADIENTS
+    ========================= */
+
+    const defs =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "defs"
+        );
+
+
+    function addGradient(
+        id,
+        color
+    ) {
+
+        const gradient =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "linearGradient"
+            );
+
+
+        gradient.setAttribute(
+            "id",
+            id
+        );
+
+
+        gradient.setAttribute(
+            "x1",
+            "0"
+        );
+
+        gradient.setAttribute(
+            "y1",
+            "0"
+        );
+
+        gradient.setAttribute(
+            "x2",
+            "0"
+        );
+
+        gradient.setAttribute(
+            "y2",
+            "1"
+        );
+
+
+        const stop1 =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "stop"
+            );
+
+
+        stop1.setAttribute(
+            "offset",
+            "0%"
+        );
+
+
+        stop1.setAttribute(
+            "stop-color",
+            color
+        );
+
+
+        stop1.setAttribute(
+            "stop-opacity",
+            "0.20"
+        );
+
+
+        const stop2 =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "stop"
+            );
+
+
+        stop2.setAttribute(
+            "offset",
+            "100%"
+        );
+
+
+        stop2.setAttribute(
+            "stop-color",
+            color
+        );
+
+
+        stop2.setAttribute(
+            "stop-opacity",
+            "0"
+        );
+
+
+        gradient.appendChild(stop1);
+        gradient.appendChild(stop2);
+
+        defs.appendChild(gradient);
+
+    }
+
+
+    addGradient(
+        "speedGradient",
+        "#2563eb"
+    );
+
+
+    addGradient(
+        "fuelGradient",
+        "#059669"
+    );
+
+
+    addGradient(
+        "tempGradient",
+        "#f97316"
+    );
+
+
+    svg.appendChild(
+        defs
+    );
+
+
+    /* =========================
+       GRID
+    ========================= */
+
+    for (
+        let i = 0;
+        i <= 5;
+        i++
+    ) {
+
+        const y =
+            top +
+            (
+                plotHeight / 5
+            ) * i;
+
+
+        const grid =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "line"
+            );
+
+
+        grid.setAttribute(
+            "x1",
+            left
+        );
+
+
+        grid.setAttribute(
+            "x2",
+            width - right
+        );
+
+
+        grid.setAttribute(
+            "y1",
+            y
+        );
+
+
+        grid.setAttribute(
+            "y2",
+            y
+        );
+
+
+        grid.classList.add(
+            "combined-grid-line"
+        );
+
+
+        svg.appendChild(
+            grid
+        );
+
+    }
+
+
+    /* =========================
+       SERIES
+    ========================= */
+
+    const series = [
+
+        {
+            name: "Speed",
+
+            values:
+                speedValues,
+
+            range:
+                speedRange,
+
+            color:
+                "#2563eb",
+
+            gradient:
+                "url(#speedGradient)",
+
+            unit:
+                "km/h"
+
+        },
+
+        {
+            name: "Fuel",
+
+            values:
+                fuelValues,
+
+            range:
+                fuelRange,
+
+            color:
+                "#059669",
+
+            gradient:
+                "url(#fuelGradient)",
+
+            unit:
+                "%"
+
+        },
+
+        {
+            name: "Temperature",
+
+            values:
+                tempValues,
+
+            range:
+                tempRange,
+
+            color:
+                "#f97316",
+
+            gradient:
+                "url(#tempGradient)",
+
+            unit:
+                "°C"
+
+        }
+
+    ];
+
+
+    /* =========================
+       AREA + LINE
+    ========================= */
+
+    series.forEach(
+        seriesItem => {
+
+            const area =
+                document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "path"
+                );
+
+
+            area.setAttribute(
+                "d",
+                createAreaPath(
+                    seriesItem.values,
+                    seriesItem.range
+                )
+            );
+
+
+            area.setAttribute(
+                "fill",
+                seriesItem.gradient
+            );
+
+
+            area.classList.add(
+                "combined-area"
+            );
+
+
+            svg.appendChild(
+                area
+            );
+
+
+            const line =
+                document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "path"
+                );
+
+
+            line.setAttribute(
+                "d",
+                createPath(
+                    seriesItem.values,
+                    seriesItem.range
+                )
+            );
+
+
+            line.setAttribute(
+                "stroke",
+                seriesItem.color
+            );
+
+
+            line.classList.add(
+                "combined-line"
+            );
+
+
+            svg.appendChild(
+                line
+            );
+
+        }
+    );
+
+
+    /* =========================
+       TOOLTIP
+    ========================= */
+
+    const tooltip =
+        document.createElement(
+            "div"
+        );
+
+
+    tooltip.className =
+        "combined-tooltip";
+
+
+    container.appendChild(
+        tooltip
+    );
+
+
+    /* =========================
+       VEHICLE POINTS
+    ========================= */
+
+    devices.forEach(
+        (vehicle, index) => {
+
+            const x =
+                mapX(index);
+
+
+            series.forEach(
+                seriesItem => {
+
+                    const value =
+                        seriesItem.values[index];
+
+
+                    const y =
+                        mapY(
+                            value,
+                            seriesItem.range
+                        );
+
+
+                    const circle =
+                        document.createElementNS(
+                            "http://www.w3.org/2000/svg",
+                            "circle"
+                        );
+
+
+                    circle.setAttribute(
+                        "cx",
+                        x
+                    );
+
+
+                    circle.setAttribute(
+                        "cy",
+                        y
+                    );
+
+
+                    circle.setAttribute(
+                        "r",
+                        "4"
+                    );
+
+
+                    circle.setAttribute(
+                        "fill",
+                        "#ffffff"
+                    );
+
+
+                    circle.setAttribute(
+                        "stroke",
+                        seriesItem.color
+                    );
+
+
+                    circle.setAttribute(
+                        "stroke-width",
+                        "2.5"
+                    );
+
+
+                    circle.classList.add(
+                        "combined-point"
+                    );
+
+
+                    circle.addEventListener(
+                        "mouseenter",
+                        event => {
+
+                            const rect =
+                                container.getBoundingClientRect();
+
+
+                            const pointRect =
+                                event.target.getBoundingClientRect();
+
+
+                            tooltip.innerHTML = `
+
+                                <div class="tt-title">
+                                    ${getVehicleId(vehicle)}
+                                </div>
+
+                                <div class="speed">
+                                    ● Speed:
+                                    ${formatNumber(
+                                        getSpeed(vehicle)
+                                    )}
+                                    km/h
+                                </div>
+
+                                <div class="fuel">
+                                    ● Fuel:
+                                    ${formatNumber(
+                                        getFuel(vehicle)
+                                    )}
+                                    %
+                                </div>
+
+                                <div class="temp">
+                                    ● Temperature:
+                                    ${formatNumber(
+                                        getTemperature(vehicle)
+                                    )}
+                                    °C
+                                </div>
+
+                            `;
+
+
+                            tooltip.style.left =
+                                (
+                                    pointRect.left -
+                                    rect.left +
+                                    pointRect.width / 2
+                                ) + "px";
+
+
+                            tooltip.style.top =
+                                (
+                                    pointRect.top -
+                                    rect.top
+                                ) + "px";
+
+
+                            tooltip.style.opacity =
+                                "1";
+
+                        }
+                    );
+
+
+                    circle.addEventListener(
+                        "mouseleave",
+                        () => {
+
+                            tooltip.style.opacity =
+                                "0";
+
+                        }
+                    );
+
+
+                    svg.appendChild(
+                        circle
+                    );
+
+                }
+            );
+
+
+            /* =========================
+               VEHICLE LABEL
+            ========================= */
+
+            const label =
+                document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "text"
+                );
+
+
+            label.setAttribute(
+                "x",
+                x
+            );
+
+
+            label.setAttribute(
+                "y",
+                height - 28
+            );
+
+
+            label.setAttribute(
+                "text-anchor",
+                "end"
+            );
+
+
+            label.setAttribute(
+                "transform",
+                `rotate(
+                    -38
+                    ${x}
+                    ${height - 28}
+                )`
+            );
+
+
+            label.classList.add(
+                "combined-label"
+            );
+
+
+            label.textContent =
+                getVehicleId(vehicle);
+
+
+            svg.appendChild(
+                label
+            );
+
+        }
+    );
+
+
+    /* =========================
+       Y AXIS
+    ========================= */
+
+    for (
+        let i = 0;
+        i <= 5;
+        i++
+    ) {
+
+        const percentage =
+            1 - i / 5;
+
+
+        const y =
+            top +
+            (
+                plotHeight *
+                i /
+                5
+            );
+
+
+        const label =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+            );
+
+
+        label.setAttribute(
+            "x",
+            8
+        );
+
+
+        label.setAttribute(
+            "y",
+            y + 3
+        );
+
+
+        label.classList.add(
+            "combined-axis-title"
+        );
+
+
+        label.textContent =
+            Math.round(
+                percentage * 100
+            );
+
+
+        svg.appendChild(
+            label
+        );
+
+    }
+
+
+    /* =========================
+       AXIS TITLES
+    ========================= */
+
+    const speedTitle =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
+
+
+    speedTitle.setAttribute(
+        "x",
+        left + 10
+    );
+
+
+    speedTitle.setAttribute(
+        "y",
+        16
+    );
+
+
+    speedTitle.setAttribute(
+        "fill",
+        "#2563eb"
+    );
+
+
+    speedTitle.setAttribute(
+        "font-size",
+        "9"
+    );
+
+
+    speedTitle.setAttribute(
+        "font-weight",
+        "700"
+    );
+
+
+    speedTitle.textContent =
+        "SPEED · KM/H";
+
+
+    svg.appendChild(
+        speedTitle
+    );
+
+
+    const fuelTitle =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
+
+
+    fuelTitle.setAttribute(
+        "x",
+        left + 100
+    );
+
+
+    fuelTitle.setAttribute(
+        "y",
+        16
+    );
+
+
+    fuelTitle.setAttribute(
+        "fill",
+        "#059669"
+    );
+
+
+    fuelTitle.setAttribute(
+        "font-size",
+        "9"
+    );
+
+
+    fuelTitle.setAttribute(
+        "font-weight",
+        "700"
+    );
+
+
+    fuelTitle.textContent =
+        "FUEL · %";
+
+
+    svg.appendChild(
+        fuelTitle
+    );
+
+
+    const tempTitle =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
+
+
+    tempTitle.setAttribute(
+        "x",
+        left + 170
+    );
+
+
+    tempTitle.setAttribute(
+        "y",
+        16
+    );
+
+
+    tempTitle.setAttribute(
+        "fill",
+        "#f97316"
+    );
+
+
+    tempTitle.setAttribute(
+        "font-size",
+        "9"
+    );
+
+
+    tempTitle.setAttribute(
+        "font-weight",
+        "700"
+    );
+
+
+    tempTitle.textContent =
+        "TEMPERATURE · °C";
+
+
+    svg.appendChild(
+        tempTitle
+    );
+
+
+    container.appendChild(
+        svg
+    );
+
+
+    /* =========================
+       LEGEND
+    ========================= */
+
+    const legend =
+        document.createElement(
+            "div"
+        );
+
+
+    legend.className =
+        "combined-legend";
+
+
+    legend.innerHTML = `
+
+        <div class="legend-item">
+
+            <div
+                class="legend-dot"
+                style="background:#2563eb"
+            ></div>
+
+            Speed · km/h
+
+        </div>
+
+
+        <div class="legend-item">
+
+            <div
+                class="legend-dot"
+                style="background:#059669"
+            ></div>
+
+            Fuel · %
+
+        </div>
+
+
+        <div class="legend-item">
+
+            <div
+                class="legend-dot"
+                style="background:#f97316"
+            ></div>
+
+            Temperature · °C
+
+        </div>
+
+
+        <div class="chart-mode-badge">
+            Live · 20 Vehicles
+        </div>
+
+    `;
+
+
+    container.appendChild(
+        legend
+    );
+
+}
+
+
+/* =====================================================
+   SINGLE METRIC CHART
+===================================================== */
+
+function createLineChart(
+    container,
+    devices,
+    getter,
+    unit,
+    lineType = "blue"
+) {
+
+    container.innerHTML = "";
+
+
+    container.classList.remove(
+        "combined-chart"
+    );
+
+
+    if (!devices.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+                No telemetry data available
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const values =
+        devices.map(
+            vehicle =>
+                Number(
+                    getter(vehicle)
+                ) || 0
+        );
+
+
+    const labels =
+        devices.map(
+            vehicle =>
+                getVehicleId(vehicle)
+        );
+
+
+    const width = 1000;
+    const height = 210;
+
+
+    const max =
+        Math.max(...values, 1);
+
+
+    const min =
+        Math.min(...values, 0);
+
+
+    const range =
+        Math.max(
+            max - min,
+            1
+        );
+
+
+    const points =
+        values.map(
+            (value, index) => {
+
+                const x =
+                    values.length === 1
+                        ? 50
+                        : (
+                            index /
+                            (
+                                values.length - 1
+                            )
+                        ) * 100;
+
+
+                const y =
+                    95 -
+                    (
+                        (
+                            value -
+                            min
+                        ) /
+                        range
+                    ) * 85;
+
+
+                return {
+                    x,
+                    y,
+                    value,
+                    label:
+                        labels[index]
+                };
+
+            }
+        );
+
+
+    const path =
+        points
+            .map(
+                (point, index) =>
+                    `${
+                        index === 0
+                            ? "M"
+                            : "L"
+                    }
+                    ${point.x}
+                    ${point.y}`
+            )
+            .join(" ");
+
+
+    let stroke =
+        "#2563eb";
+
+
+    if (lineType === "green") {
+        stroke = "#059669";
+    }
+
+
+    if (lineType === "orange") {
+        stroke = "#f97316";
+    }
+
+
+    const svg =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg"
+        );
+
+
+    svg.setAttribute(
+        "viewBox",
+        `0 0 ${width} ${height}`
+    );
+
+
+    svg.classList.add(
+        "line-svg"
+    );
+
+
+    const areaPath =
+        `${path}
+         L 100 100
+         L 0 100
+         Z`;
+
+
+    const area =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+        );
+
+
+    area.setAttribute(
+        "d",
+        areaPath
+    );
+
+
+    area.setAttribute(
+        "fill",
+        stroke
+    );
+
+
+    area.classList.add(
+        "area-path"
+    );
+
+
+    svg.appendChild(
+        area
+    );
+
+
+    const line =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+        );
+
+
+    line.setAttribute(
+        "d",
+        path
+    );
+
+
+    line.setAttribute(
+        "stroke",
+        stroke
+    );
+
+
+    line.classList.add(
+        "line-path"
+    );
+
+
+    svg.appendChild(
+        line
+    );
+
+
+    const tooltip =
+        document.createElement(
+            "div"
+        );
+
+
+    tooltip.className =
+        "chart-tooltip";
+
+
+    container.appendChild(
+        svg
+    );
+
+
+    container.appendChild(
+        tooltip
+    );
+
+}
+
+
+/* =====================================================
+   DASHBOARD CHARTS
+===================================================== */
+
+function renderDashboardCharts(
+    devices
+) {
+
+    createCombinedChart(
+        document.getElementById(
+            "performanceChart"
+        ),
+        devices
+    );
+    renderAnomalyOverview(devices);
+    renderResourceCards(devices);
+
+    renderAnomalyBars(
+        devices
+    );
+
+
+    renderRegions(
+        devices
+    );
+
+}
+
+
+/* =====================================================
+   PERFORMANCE SELECTOR
+===================================================== */
+
+function refreshDashboardChart(
+    type
+) {
+
+    const container =
+        document.getElementById(
+            "performanceChart"
+        );
+
+
+    if (type === "combined") {
+
+        createCombinedChart(
+            container,
+            allVehicles
+        );
+
+        return;
+
+    }
+
+
+    if (type === "fuel") {
+
+        createLineChart(
+            container,
+            allVehicles,
+            getFuel,
+            "%",
+            "green"
+        );
+
+        return;
+
+    }
+
+
+    if (type === "temperature") {
+
+        createLineChart(
+            container,
+            allVehicles,
+            getTemperature,
+            "°C",
+            "orange"
+        );
+
+        return;
+
+    }
+
+
+    createLineChart(
+        container,
+        allVehicles,
+        getSpeed,
+        "km/h",
+        "blue"
+    );
+
+}
+
+/* =====================================================
+   ANOMALY OVERVIEW
+===================================================== */
+
+function renderAnomalyOverview(devices) {
+    const container = document.getElementById("anomalyChart");
+    if (!container) return;
+    container.innerHTML = "";
+
+    let critical = 0, warning = 0, healthy = 0;
+    devices.forEach(v => {
+        const status = getStatus(v);
+        if (status === "critical") critical++;
+        else if (status === "warning") warning++;
+        else healthy++;
+    });
+
+    document.getElementById("criticalAnomalyCount").textContent = critical;
+    document.getElementById("warningAnomalyCount").textContent = warning;
+    document.getElementById("healthyAnomalyCount").textContent = healthy;
+
+    const rows = [...devices].map(vehicle => {
+        const status = getStatus(vehicle);
+        const score = status === "critical" ? 100 : status === "warning" ? 65 : 20;
+        return { id: getVehicleId(vehicle), score, status };
+    }).sort((a,b) => b.score - a.score).slice(0,5);
+
+    if (!rows.length) {
+        container.innerHTML = '<div class="empty">No vehicle data available</div>';
+        return;
+    }
+
+    rows.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "anomaly-row";
+        row.innerHTML = `
+            <div class="anomaly-name" title="${item.id}">${item.id}</div>
+            <div class="anomaly-track"><div class="anomaly-fill" style="width:${item.score}%"></div></div>
+            <div class="anomaly-count">${item.score}</div>
+        `;
+        container.appendChild(row);
+    });
+}
+
+/* =====================================================
+   RESOURCE CARDS
+===================================================== */
+
+function renderResourceCards(devices) {
+    const container = document.getElementById("resourceChart");
+    if (!container) return;
+    container.innerHTML = "";
+
+    const total = devices.length || 1;
+    const avgFuel = Math.round(devices.reduce((sum,v) => sum + getFuel(v), 0) / total);
+    const avgBattery = Math.round(devices.reduce((sum,v) => sum + getBattery(v), 0) / total);
+    const lowFuel = devices.filter(v => getFuel(v) <= 20).length;
+    const lowBattery = devices.filter(v => getBattery(v) > 0 && getBattery(v) <= 20).length;
+
+    const card = (label, value, sub, meta, alert, type) => `
+        <div class="resource-card">
+            <div>
+                <div class="resource-card-top">
+                    <div>
+                        <div class="resource-label">${label}</div>
+                        <div class="resource-sub">${sub}</div>
+                    </div>
+                    <div class="resource-value">${value}%</div>
+                </div>
+                <div class="resource-track">
+                    <div class="resource-fill" style="width:${Math.max(0,Math.min(100,value))}%; background:${type === 'fuel' ? '#059669' : '#7c3aed'}"></div>
+                </div>
+                <div class="resource-meta"><span>${meta}</span><strong>${value >= 60 ? 'Good' : value >= 30 ? 'Monitor' : 'Low'}</strong></div>
+            </div>
+            ${alert ? `<div class="resource-alert">${alert}</div>` : '<div class="dashboard-note">No immediate resource action required.</div>'}
+        </div>`;
+
+    container.innerHTML =
+        card("Fuel Level", avgFuel, "Fleet average", `${lowFuel} vehicle${lowFuel === 1 ? '' : 's'} at ≤20%`, lowFuel ? `⚠ ${lowFuel} vehicle${lowFuel === 1 ? '' : 's'} low on fuel` : "", "fuel") +
+        card("Battery", avgBattery, "Fleet average", `${lowBattery} vehicle${lowBattery === 1 ? '' : 's'} at ≤20%`, lowBattery ? `⚡ ${lowBattery} vehicle${lowBattery === 1 ? '' : 's'} low on battery` : "", "battery");
+}
+
+
+/* =====================================================
+   ANOMALY BARS
+===================================================== */
+
+function renderAnomalyBars(
+    devices
+) {
+
+    const container =
+        document.getElementById(
+            "anomalyBars"
+        );
+
+
+    container.innerHTML = "";
+
+
+    const sorted =
+        [...devices]
+            .map(vehicle => ({
+
+                id:
+                    getVehicleId(
+                        vehicle
+                    ),
+
+                score:
+                    getStatus(vehicle) === "critical"
+                        ? 95
+                        : getStatus(vehicle) === "warning"
+                            ? 65
+                            : Math.floor(
+                                Math.random() * 35
+                            )
+
+            }))
+            .sort(
+                (a, b) =>
+                    b.score - a.score
+            )
+            .slice(0, 5);
+
+
+    sorted.forEach(
+        vehicle => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "bar-row";
+
+
+            row.innerHTML = `
+
+                <div class="bar-name">
+                    ${vehicle.id}
+                </div>
+
+                <div class="bar-track">
+
+                    <div
+                        class="bar-fill"
+                        style="
+                            width:${vehicle.score}%
+                        "
+                    ></div>
+
+                </div>
+
+                <div class="bar-value">
+                    ${vehicle.score}
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   REGION CHART
+===================================================== */
+
+function renderRegions(
+    devices
+) {
+
+    const container =
+        document.getElementById(
+            "regionChart"
+        );
+
+
+    container.innerHTML = "";
+
+
+    const regions = [
+        "North",
+        "West",
+        "South",
+        "Central"
+    ];
+
+
+    regions.forEach(
+        (region, index) => {
+
+            const total =
+                Math.max(
+                    3,
+                    Math.round(
+                        devices.length / 4
+                    )
+                );
+
+
+            const critical =
+                index === 1
+                    ? 12
+                    : 6;
+
+
+            const warning =
+                18;
+
+
+            const healthy =
+                70;
+
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "region-row";
+
+
+            row.innerHTML = `
+
+                <div class="region-name">
+                    ${region}
+                </div>
+
+                <div class="stacked">
+
+                    <div
+                        class="stack-healthy"
+                        style="
+                            width:${healthy}%
+                        "
+                    ></div>
+
+                    <div
+                        class="stack-warning"
+                        style="
+                            width:${warning}%
+                        "
+                    ></div>
+
+                    <div
+                        class="stack-critical"
+                        style="
+                            width:${critical}%
+                        "
+                    ></div>
+
+                </div>
+
+            `;
+
+
+            container.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   DASHBOARD TABLE
+===================================================== */
+
+function renderDashboardTable(
+    devices
+) {
+
+    const table =
+        document.getElementById(
+            "dashboardTable"
+        );
+
+
+    table.innerHTML = "";
+
+
+    if (!devices.length) {
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    <div class="empty">
+                        No vehicle data available
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    devices.forEach(
+        vehicle => {
+
+            const status =
+                getStatus(vehicle);
+
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td class="vehicle-id">
+                        ${getVehicleId(vehicle)}
+                    </td>
+
+                    <td>
+                        ${formatNumber(
+                            getSpeed(vehicle)
+                        )}
+                        km/h
+                    </td>
+
+                    <td>
+                        ${formatNumber(
+                            getFuel(vehicle)
+                        )}%
+                    </td>
+
+                    <td>
+                        ${formatNumber(
+                            getTemperature(vehicle)
+                        )}°C
+                    </td>
+
+                    <td>
+                        ${statusBadge(status)}
+                    </td>
+
+                    <td>
+                        ${getLatitude(vehicle)},
+                        ${getLongitude(vehicle)}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   VEHICLES TABLE
+===================================================== */
+
+function renderVehiclesTable(
+    devices
+) {
+
+    const table =
+        document.getElementById(
+            "vehiclesTable"
+        );
+
+
+    table.innerHTML = "";
+
+
+    devices.forEach(
+        vehicle => {
+
+            const status =
+                getStatus(vehicle);
+
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td class="vehicle-id">
+                        ${getVehicleId(vehicle)}
+                    </td>
+
+                    <td>
+                        ${formatNumber(
+                            getSpeed(vehicle)
+                        )} km/h
+                    </td>
+
+                    <td>
+                        ${formatNumber(
+                            getFuel(vehicle)
+                        )}%
+                    </td>
+
+                    <td>
+                        ${formatNumber(
+                            getTemperature(vehicle)
+                        )}°C
+                    </td>
+
+                    <td>
+                        ${statusBadge(status)}
+                    </td>
+
+                    <td>
+                        ${getLatitude(vehicle)}
+                    </td>
+
+                    <td>
+                        ${getLongitude(vehicle)}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   TELEMETRY TABLE
+===================================================== */
+
+function renderTelemetryTable(
+    devices
+) {
+
+    const table =
+        document.getElementById(
+            "telemetryTable"
+        );
+
+
+    table.innerHTML = "";
+
+
+    devices.forEach(
+        vehicle => {
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td class="vehicle-id">
+                        ${getVehicleId(vehicle)}
+                    </td>
+
+                    <td>
+                        ${formatNumber(
+                            getSpeed(vehicle)
+                        )} km/h
+                    </td>
+
+                    <td>
+                        ${formatNumber(
+                            getFuel(vehicle)
+                        )}%
+                    </td>
+
+                    <td>
+                        ${formatNumber(
+                            getTemperature(vehicle)
+                        )}°C
+                    </td>
+
+                    <td>
+                        ${getLatitude(vehicle)}
+                    </td>
+
+                    <td>
+                        ${getLongitude(vehicle)}
+                    </td>
+
+                    <td>
+                        ${getTimestamp(vehicle)}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ALERTS
+===================================================== */
+
+function renderAlerts(
+    devices
+) {
+
+    const container =
+        document.getElementById(
+            "alertsList"
+        );
+
+
+    const alerts =
+        devices.filter(
+            vehicle =>
+                getStatus(vehicle) !==
+                "active"
+        );
+
+
+    if (!alerts.length) {
+
+        container.innerHTML = `
+
+            <div class="alert-row">
+
+                <div
+                    class="alert-icon"
+                    style="
+                        background:#dcfce7;
+                        color:#15803d;
+                    "
+                >
+                    ✓
+                </div>
+
+                <div class="alert-info">
+
+                    <strong>
+                        No active alerts
+                    </strong>
+
+                    <span>
+                        All vehicles are operating normally.
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    alerts.forEach(
+        vehicle => {
+
+            const status =
+                getStatus(vehicle);
+
+
+            const temperature =
+                getTemperature(vehicle);
+
+
+            container.innerHTML += `
+
+                <div class="alert-row">
+
+                    <div class="alert-icon">
+                        !
+                    </div>
+
+                    <div class="alert-info">
+
+                        <strong>
+                            ${getVehicleId(vehicle)}
+                            -
+                            ${
+                                status === "critical"
+                                ? "Critical temperature"
+                                : "Vehicle warning"
+                            }
+                        </strong>
+
+                        <span>
+                            Engine temperature:
+                            ${formatNumber(
+                                temperature
+                            )}°C
+                        </span>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+function filterVehicles() {
+
+    const search =
+        document
+            .getElementById(
+                "vehicleSearch"
+            )
+            .value
+            .toLowerCase();
+
+
+    const selectedStatus =
+        document
+            .getElementById(
+                "vehicleStatus"
+            )
+            .value;
+
+
+    const filtered =
+        allVehicles.filter(
+            vehicle => {
+
+                const id =
+                    getVehicleId(vehicle)
+                        .toString()
+                        .toLowerCase();
+
+
+                const status =
+                    getStatus(vehicle);
+
+
+                return (
+                    id.includes(search) &&
+                    (
+                        selectedStatus === "all" ||
+                        status === selectedStatus
+                    )
+                );
+
+            }
+        );
+
+
+    renderVehiclesTable(
+        filtered
+    );
+
+}
+
+
+/* =====================================================
+   INITIAL LOAD
+===================================================== */
+
+loadVehicles();
+
+
+/* =====================================================
+   AUTO REFRESH
+===================================================== */
+
+setInterval(
+    loadVehicles,
+    10000
+);
+
+</script>
+
+
+</body>
+
+</html>
